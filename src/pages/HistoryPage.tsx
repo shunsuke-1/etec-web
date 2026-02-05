@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../components/layout/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Alert, AlertDescription } from "../components/ui/alert";
+import { fetchAttemptHistory } from "../features/history/api";
 import { 
   Calendar, 
   Trophy, 
@@ -47,9 +49,10 @@ const getScoreColor = (percentage: number) => {
 };
 
 export default function HistoryPage({ userId }: Props) {
+  const navigate = useNavigate();
   const [history, setHistory] = useState<AttemptHistory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!userId) {
@@ -57,37 +60,41 @@ export default function HistoryPage({ userId }: Props) {
       return;
     }
 
-    // TODO: Fetch actual history from API
-    // For now, show mock data
-    setTimeout(() => {
-      setHistory([
-        {
-          id: 1,
-          level: "beginner",
-          score: 8,
-          total: 10,
-          percentage: 80,
-          createdAt: "2024-02-04T10:30:00Z",
-        },
-        {
-          id: 2,
-          level: "intermediate",
-          score: 6,
-          total: 10,
-          percentage: 60,
-          createdAt: "2024-02-03T15:45:00Z",
-        },
-        {
-          id: 3,
-          level: "beginner",
-          score: 9,
-          total: 10,
-          percentage: 90,
-          createdAt: "2024-02-02T09:15:00Z",
-        },
-      ]);
-      setLoading(false);
-    }, 1000);
+    let active = true;
+
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const rows = await fetchAttemptHistory(userId);
+        if (!active) return;
+        const mapped = rows
+          .filter((row) => row.finished_at || row.correct_count !== null)
+          .map((row) => {
+            const score = row.correct_count ?? 0;
+            const total = row.total_questions ?? 0;
+            const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+            return {
+              id: row.id,
+              level: row.level,
+              score,
+              total,
+              percentage,
+              createdAt: row.finished_at ?? row.created_at,
+            };
+          });
+        setHistory(mapped);
+      } catch (e) {
+        if (!active) return;
+        setError(e instanceof Error ? e.message : String(e));
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
   }, [userId]);
 
   if (!userId) {
@@ -280,7 +287,11 @@ export default function HistoryPage({ userId }: Props) {
                         </div>
                       </div>
                       
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/history/${attempt.id}`)}
+                      >
                         詳細
                       </Button>
                     </div>

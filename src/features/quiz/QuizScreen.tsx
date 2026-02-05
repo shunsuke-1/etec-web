@@ -122,13 +122,25 @@ export default function QuizScreen({ level, userId }: Props) {
     
     const newResult = { questionId: current.id, selectedChoiceId: choiceId, isCorrect };
     setResults((prev) => {
-      const updated = [...prev, newResult];
+      // Check if this question already has a result to prevent duplicates
+      const existingIndex = prev.findIndex(r => r.questionId === current.id);
+      let updated;
+      if (existingIndex >= 0) {
+        // Replace existing result for this question
+        updated = [...prev];
+        updated[existingIndex] = newResult;
+      } else {
+        // Add new result
+        updated = [...prev, newResult];
+      }
+      
       console.log('Answer selected:', {
         questionId: current.id,
         choiceId,
         isCorrect,
         previousResults: prev.length,
-        newResultsCount: updated.length
+        newResultsCount: updated.length,
+        wasReplacement: existingIndex >= 0
       });
       return updated;
     });
@@ -209,7 +221,7 @@ export default function QuizScreen({ level, userId }: Props) {
               </span>
               <div className="flex items-center gap-4">
                 <span className="text-muted-foreground">
-                  正解: {score} / {results.length}
+                  正解: {score} / {Math.min(results.length, questions.length)}
                 </span>
                 <Badge variant={savingEnabled ? "default" : "secondary"} className="gap-1">
                   <User className="h-3 w-3" />
@@ -265,24 +277,64 @@ export default function QuizScreen({ level, userId }: Props) {
         </CardContent>
       </Card>
 
-      {/* Explanation Card */}
+      {/* Enhanced Explanation Card */}
       {isAnswered && (
         <Card className={answer.isCorrect ? "border-success/50 bg-success/5" : "border-destructive/50 bg-destructive/5"}>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 mb-3">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
               {answer.isCorrect ? (
                 <CheckCircle className="h-5 w-5 text-success" />
               ) : (
                 <XCircle className="h-5 w-5 text-destructive" />
               )}
-              <span className="font-semibold">
+              <span className="font-semibold text-lg">
                 {answer.isCorrect ? "正解！" : "不正解"}
               </span>
             </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Correct Answer Display */}
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm text-muted-foreground">正解</h4>
+              <div className="p-3 bg-success/10 border border-success/20 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-success text-success-foreground flex items-center justify-center text-xs font-bold">
+                    {String.fromCharCode(65 + current.choices.findIndex(c => c.is_correct))}
+                  </div>
+                  <span className="text-sm font-medium">
+                    {current.choices.find(c => c.is_correct)?.label}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Explanation */}
             {current.explanation && (
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {current.explanation}
-              </p>
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-muted-foreground">解説</h4>
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <p className="text-sm leading-relaxed">
+                    {current.explanation}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Your Answer (if incorrect) */}
+            {!answer.isCorrect && (
+              <div className="space-y-2">
+                <h4 className="font-medium text-sm text-muted-foreground">あなたの回答</h4>
+                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center text-xs font-bold">
+                      {String.fromCharCode(65 + current.choices.findIndex(c => c.id === answer.selectedChoiceId))}
+                    </div>
+                    <span className="text-sm">
+                      {current.choices.find(c => c.id === answer.selectedChoiceId)?.label}
+                    </span>
+                  </div>
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>

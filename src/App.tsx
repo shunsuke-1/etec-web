@@ -6,7 +6,9 @@ import AuthPanel from "./features/auth/AuthPanel";
 import HomePage from "./pages/HomePage";
 import QuizPage from "./pages/QuizPage";
 import ResultPage from "./pages/ResultPage";
+import ExplanationPage from "./pages/ExplanationPage";
 import HistoryPage from "./pages/HistoryPage";
+import HistoryDetailPage from "./pages/HistoryDetailPage";
 import ReviewPage from "./pages/ReviewPage";
 
 export default function App() {
@@ -64,8 +66,10 @@ export default function App() {
             <Route path="/" element={<HomePage userId={userId} />} />
             <Route path="/quiz" element={<QuizPage userId={userId} />} />
             <Route path="/result" element={<ResultPage userId={userId} />} />
+            <Route path="/explanation" element={<ExplanationPage userId={userId} />} />
             <Route path="/review" element={<ReviewPage userId={userId} />} />
             <Route path="/history" element={<HistoryPage userId={userId} />} />
+            <Route path="/history/:attemptId" element={<HistoryDetailPage userId={userId} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

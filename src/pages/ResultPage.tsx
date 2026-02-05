@@ -257,14 +257,14 @@ export default function ResultPage({ userId }: Props) {
           もう一度挑戦
         </Button>
         
-        {userId && (
+        {userId && result.attemptId && (
           <Button
             variant="outline"
-            onClick={() => navigate("/review")}
+            onClick={() => navigate(`/explanation?attemptId=${result.attemptId}`)}
             className="gap-2"
           >
             <BookOpen className="h-4 w-4" />
-            間違いを復習
+            詳細解説を見る
           </Button>
         )}
       </div>

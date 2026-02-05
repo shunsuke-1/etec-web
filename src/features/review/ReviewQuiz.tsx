@@ -120,7 +120,7 @@ export default function ReviewQuiz({ userId }: Props) {
             次へ
           </button>
         ) : (
-          <p>復習完了 🎉</p>
+          <button disabled>最後の問題です</button>
         )}
       </div>
     </div>
