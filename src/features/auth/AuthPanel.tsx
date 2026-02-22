@@ -80,22 +80,15 @@ export default function AuthPanel({ isLoggedIn, email }: Props) {
 
   if (isLoggedIn) {
     return (
-      <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-green-100 rounded-full">
-            <svg className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-sm font-medium text-green-800">ログイン中</div>
-            <p className="text-sm text-green-600">{email}</p>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="text-right">
+          <p className="text-sm font-medium text-gray-700">ログイン中</p>
+          <p className="text-xs text-gray-500">{email}</p>
         </div>
         <button
           onClick={signOut}
           disabled={busy}
-          className="px-4 py-2 text-sm font-medium text-green-700 bg-green-100 border border-green-300 rounded-md hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+          className="rounded-xl bg-gray-700 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
         >
           ログアウト
         </button>
@@ -105,25 +98,10 @@ export default function AuthPanel({ isLoggedIn, email }: Props) {
 
   if (!showAuthForm) {
     return (
-      <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-100 rounded-full">
-            <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-blue-800">
-              ログインして学習履歴を保存
-            </p>
-            <p className="text-xs text-blue-600">
-              進捗管理と復習機能が利用できます
-            </p>
-          </div>
-        </div>
+      <div>
         <button
           onClick={() => setShowAuthForm(true)}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-2xl bg-[#4f63be] px-8 py-3 text-2xl font-semibold text-white transition-colors hover:bg-[#4558ad] focus:outline-none focus:ring-2 focus:ring-[#4f63be] focus:ring-offset-2"
         >
           ログイン
         </button>
@@ -132,78 +110,70 @@ export default function AuthPanel({ isLoggedIn, email }: Props) {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-medium text-gray-900">アカウント</h3>
-          <p className="text-sm text-gray-600">
-            ログインまたは新規登録してください
-          </p>
+    <div className="relative">
+      <button
+        onClick={() => setShowAuthForm(false)}
+        className="rounded-2xl bg-[#4f63be] px-8 py-3 text-2xl font-semibold text-white transition-colors hover:bg-[#4558ad] focus:outline-none focus:ring-2 focus:ring-[#4f63be] focus:ring-offset-2"
+      >
+        ログイン
+      </button>
+      <div className="absolute right-0 top-[calc(100%+12px)] z-20 w-80 rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-gray-800">アカウント</h3>
+          <button
+            onClick={() => setShowAuthForm(false)}
+            className="text-sm text-gray-500 hover:text-gray-700"
+            aria-label="ログインフォームを閉じる"
+          >
+            ✕
+          </button>
         </div>
-        <button
-          onClick={() => setShowAuthForm(false)}
-          className="text-gray-400 hover:text-gray-600"
-        >
-          ✕
-        </button>
-      </div>
 
-      {msg && (
-        <div className={`mb-4 p-3 rounded-md ${
-          msg.includes("エラー") || msg.includes("error") 
-            ? "bg-red-50 border border-red-200 text-red-800" 
-            : "bg-green-50 border border-green-200 text-green-800"
-        }`}>
-          {msg}
-        </div>
-      )}
+        {msg && (
+          <div className={`mb-3 rounded-md border px-3 py-2 text-xs ${
+            msg.includes("エラー") || msg.includes("error")
+              ? "border-red-200 bg-red-50 text-red-800"
+              : "border-green-200 bg-green-50 text-green-800"
+          }`}>
+            {msg}
+          </div>
+        )}
 
-      <div className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            メールアドレス
-          </label>
+        <div className="space-y-3">
           <input
             id="email"
             type="email"
             value={inputEmail}
             onChange={(e) => setInputEmail(e.target.value)}
-            placeholder="your@email.com"
+            placeholder="メールアドレス"
             disabled={busy}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
-        </div>
-
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            パスワード
-          </label>
           <input
             id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="パスワードを入力"
+            placeholder="パスワード"
             disabled={busy}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
-        </div>
-
-        <div className="flex gap-3 pt-2">
-          <button
-            onClick={signIn}
-            disabled={busy || !inputEmail || !password}
-            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {busy ? "処理中..." : "ログイン"}
-          </button>
-          <button
-            onClick={signUp}
-            disabled={busy || !inputEmail || !password}
-            className="flex-1 px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {busy ? "処理中..." : "新規登録"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={signIn}
+              disabled={busy || !inputEmail || !password}
+              className="flex-1 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {busy ? "処理中..." : "ログイン"}
+            </button>
+            <button
+              onClick={signUp}
+              disabled={busy || !inputEmail || !password}
+              className="flex-1 rounded-md border border-blue-600 bg-white px-3 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {busy ? "処理中..." : "新規登録"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

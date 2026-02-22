@@ -14,6 +14,7 @@ import {
   Lightbulb
 } from "lucide-react";
 import { fetchAttemptDetail } from "../features/history/api";
+import Markdown from "../components/ui/markdown";
 
 type Props = {
   userId: string | null;
@@ -210,7 +211,7 @@ export default function ExplanationPage({ userId }: Props) {
                       解説
                     </h4>
                     <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                      <p className="text-sm leading-relaxed">{item.explanation}</p>
+                      <Markdown content={item.explanation} />
                     </div>
                   </div>
                 )}
@@ -264,7 +265,7 @@ export default function ExplanationPage({ userId }: Props) {
                       解説
                     </h4>
                     <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                      <p className="text-sm leading-relaxed">{item.explanation}</p>
+                      <Markdown content={item.explanation} />
                     </div>
                   </div>
                 )}

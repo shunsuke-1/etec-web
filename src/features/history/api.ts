@@ -1,6 +1,28 @@
 import { supabase } from "../../lib/supabaseClient";
 import type { QuestionLevel } from "../../types/quiz";
 
+const LEVEL_ORDER: QuestionLevel[] = ["beginner", "intermediate", "advanced"];
+const MAX_HISTORY_PER_LEVEL = 2;
+
+function pickLatestAttemptsPerLevel<T extends { level: QuestionLevel }>(
+  attempts: T[],
+  maxPerLevel: number,
+): T[] {
+  const counts: Record<QuestionLevel, number> = {
+    beginner: 0,
+    intermediate: 0,
+    advanced: 0,
+  };
+
+  return attempts.filter((attempt) => {
+    if (counts[attempt.level] >= maxPerLevel) {
+      return false;
+    }
+    counts[attempt.level] += 1;
+    return true;
+  });
+}
+
 export async function createAttempt(params: {
   userId: string;
   level: QuestionLevel;
@@ -19,21 +41,31 @@ export async function createAttempt(params: {
 
   if (error) throw new Error(error.message);
 
-  // Then, clean up old attempts - keep only the 5 most recent per user
+  // Then, clean up old attempts - keep only the latest N attempts per level
   try {
     // Get all attempts for this user, ordered by creation date (newest first)
     const { data: allAttempts, error: fetchError } = await supabase
       .from("attempts")
-      .select("id, created_at")
+      .select("id, level, created_at")
       .eq("user_id", params.userId)
       .order("created_at", { ascending: false });
 
     if (fetchError) {
       console.warn("Failed to fetch attempts for cleanup:", fetchError.message);
-    } else if (allAttempts && allAttempts.length > 5) {
-      // Get the IDs of attempts to delete (everything after the 5 most recent)
-      const attemptsToDelete = allAttempts.slice(5).map(attempt => attempt.id);
-      
+    } else if (allAttempts && allAttempts.length > 0) {
+      const validAttempts = allAttempts.filter(
+        (attempt): attempt is { id: number; level: QuestionLevel; created_at: string } =>
+          LEVEL_ORDER.includes(attempt.level as QuestionLevel),
+      );
+      const keptAttempts = pickLatestAttemptsPerLevel(
+        validAttempts,
+        MAX_HISTORY_PER_LEVEL,
+      );
+      const keptIds = new Set(keptAttempts.map((attempt) => attempt.id));
+      const attemptsToDelete = validAttempts
+        .filter((attempt) => !keptIds.has(attempt.id))
+        .map((attempt) => attempt.id);
+
       if (attemptsToDelete.length > 0) {
         // First delete related answers
         const { error: answersDeleteError } = await supabase
@@ -54,7 +86,9 @@ export async function createAttempt(params: {
         if (attemptsDeleteError) {
           console.warn("Failed to delete old attempts:", attemptsDeleteError.message);
         } else {
-          console.log(`Cleaned up ${attemptsToDelete.length} old attempts for user ${params.userId}`);
+          console.log(
+            `Cleaned up ${attemptsToDelete.length} old attempts for user ${params.userId}`,
+          );
         }
       }
     }
@@ -119,7 +153,8 @@ export async function fetchAttemptHistory(userId: string): Promise<AttemptRow[]>
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
-  return (data ?? []) as AttemptRow[];
+  const rows = (data ?? []) as AttemptRow[];
+  return pickLatestAttemptsPerLevel(rows, MAX_HISTORY_PER_LEVEL);
 }
 
 type AttemptDetailRow = {

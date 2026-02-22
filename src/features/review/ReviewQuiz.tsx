@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import type { Question } from "../../types/quiz";
 import { fetchLatestIncorrectQuestions } from "./api";
+import Markdown from "../../components/ui/markdown";
+import { Button } from "../../components/ui/button";
 
 type Props = {
   userId: string;
@@ -110,17 +112,26 @@ export default function ReviewQuiz({ userId }: Props) {
       {isAnswered && (
         <div style={{ marginTop: 10 }}>
           <strong>{answer.isCorrect ? "正解！" : "不正解"}</strong>
-          <p>{current.explanation}</p>
+          {current.explanation && <Markdown content={current.explanation} />}
         </div>
       )}
 
       <div style={{ marginTop: 12 }}>
         {!isLast ? (
-          <button onClick={onNext} disabled={!isAnswered}>
-            次へ
-          </button>
+          <>
+            <Button onClick={onNext} disabled={!isAnswered} className="w-full">
+              次の問題へ
+            </Button>
+            {!isAnswered && (
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                回答すると次へ進めます
+              </p>
+            )}
+          </>
         ) : (
-          <button disabled>最後の問題です</button>
+          <div className="text-sm text-muted-foreground text-center">
+            最後の問題です。回答したら復習は完了です。
+          </div>
         )}
       </div>
     </div>

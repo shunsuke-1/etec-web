@@ -1,20 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../components/layout/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { fetchAttemptHistory } from "../features/history/api";
-import { 
-  Calendar, 
-  Trophy, 
-  TrendingUp, 
-  Clock, 
+import {
+  Calendar,
+  Trophy,
+  TrendingUp,
+  Clock,
   Target,
   AlertCircle,
   User,
-  BarChart3
+  BarChart3,
 } from "lucide-react";
 
 type Props = {
@@ -73,7 +79,8 @@ export default function HistoryPage({ userId }: Props) {
           .map((row) => {
             const score = row.correct_count ?? 0;
             const total = row.total_questions ?? 0;
-            const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+            const percentage =
+              total > 0 ? Math.round((score / total) * 100) : 0;
             return {
               id: row.id,
               level: row.level,
@@ -106,7 +113,7 @@ export default function HistoryPage({ userId }: Props) {
           showBackButton
           backTo="/"
         />
-        
+
         <Alert>
           <User className="h-4 w-4" />
           <AlertDescription>
@@ -126,7 +133,7 @@ export default function HistoryPage({ userId }: Props) {
           showBackButton
           backTo="/"
         />
-        
+
         <Card>
           <CardContent className="flex items-center justify-center py-12">
             <div className="text-center space-y-4">
@@ -148,7 +155,7 @@ export default function HistoryPage({ userId }: Props) {
           showBackButton
           backTo="/"
         />
-        
+
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>エラー: {error}</AlertDescription>
@@ -158,12 +165,14 @@ export default function HistoryPage({ userId }: Props) {
   }
 
   const totalAttempts = history.length;
-  const averageScore = totalAttempts > 0 
-    ? Math.round(history.reduce((sum, h) => sum + h.percentage, 0) / totalAttempts)
-    : 0;
-  const bestScore = totalAttempts > 0 
-    ? Math.max(...history.map(h => h.percentage))
-    : 0;
+  const averageScore =
+    totalAttempts > 0
+      ? Math.round(
+          history.reduce((sum, h) => sum + h.percentage, 0) / totalAttempts,
+        )
+      : 0;
+  const bestScore =
+    totalAttempts > 0 ? Math.max(...history.map((h) => h.percentage)) : 0;
 
   return (
     <div className="space-y-6">
@@ -187,7 +196,7 @@ export default function HistoryPage({ userId }: Props) {
                   まだ試験を受けていません。最初の試験を受けてみましょう。
                 </p>
               </div>
-              <Button onClick={() => window.location.href = "/"}>
+              <Button onClick={() => (window.location.href = "/")}>
                 試験を受ける
               </Button>
             </div>
@@ -204,8 +213,8 @@ export default function HistoryPage({ userId }: Props) {
                     <Trophy className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">{totalAttempts}</div>
-                    <div className="text-sm text-muted-foreground">総受験回数</div>
+                    <div className="text-1xl font-bold">難易度別 直近2回の成績</div>
+                    {/* <div className="text-sm text-muted-foreground">総受験回数</div> */}
                   </div>
                 </div>
               </CardContent>
@@ -218,8 +227,12 @@ export default function HistoryPage({ userId }: Props) {
                     <Target className="h-5 w-5 text-success" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-success">{averageScore}%</div>
-                    <div className="text-sm text-muted-foreground">平均正答率</div>
+                    <div className="text-2xl font-bold text-success">
+                      {averageScore}%
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      平均正答率
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -232,8 +245,12 @@ export default function HistoryPage({ userId }: Props) {
                     <TrendingUp className="h-5 w-5 text-warning" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-warning">{bestScore}%</div>
-                    <div className="text-sm text-muted-foreground">最高得点</div>
+                    <div className="text-2xl font-bold text-warning">
+                      {bestScore}%
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      最高得点
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -247,9 +264,7 @@ export default function HistoryPage({ userId }: Props) {
                 <Calendar className="h-5 w-5" />
                 受験履歴
               </CardTitle>
-              <CardDescription>
-                過去の試験結果一覧
-              </CardDescription>
+              <CardDescription>過去の試験結果一覧</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -264,29 +279,36 @@ export default function HistoryPage({ userId }: Props) {
                           {levelLabels[attempt.level] || attempt.level}
                         </Badge>
                       </div>
-                      
+
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Clock className="h-4 w-4" />
-                        {new Date(attempt.createdAt).toLocaleDateString('ja-JP', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                        {new Date(attempt.createdAt).toLocaleDateString(
+                          "ja-JP",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <div className={`font-semibold ${getScoreColor(attempt.percentage)}`}>
+                        <div
+                          className={`font-semibold ${getScoreColor(attempt.percentage)}`}
+                        >
                           {attempt.score} / {attempt.total}
                         </div>
-                        <div className={`text-sm ${getScoreColor(attempt.percentage)}`}>
+                        <div
+                          className={`text-sm ${getScoreColor(attempt.percentage)}`}
+                        >
                           {attempt.percentage}%
                         </div>
                       </div>
-                      
+
                       <Button
                         variant="outline"
                         size="sm"

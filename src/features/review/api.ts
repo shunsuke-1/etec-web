@@ -2,36 +2,36 @@ import { supabase } from "../../lib/supabaseClient";
 import type { Question } from "../../types/quiz";
 
 /**
- * 最新Attemptの「間違えた問題」だけ取得
+ * 問題ごとに最新の回答が「不正解」の問題だけ取得
+ * 同じ問題は1回だけ返す
  */
 export async function fetchLatestIncorrectQuestions(
   userId: string
 ): Promise<Question[]> {
-  // 1) 最新の attempt を1件取得
-  const { data: latestAttempt, error: attemptError } = await supabase
-    .from("attempts")
-    .select("id")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
-
-  if (attemptError) throw new Error(attemptError.message);
-  if (!latestAttempt) return [];
-
-  // 2) その attempt の「不正解 answer」から question_id を取得
-  const { data: wrongAnswers, error: answerError } = await supabase
+  const { data: answers, error: answerError } = await supabase
     .from("answers")
-    .select("question_id")
-    .eq("attempt_id", latestAttempt.id)
-    .eq("is_correct", false);
+    .select("id, question_id, is_correct, answered_at")
+    .eq("user_id", userId)
+    .order("answered_at", { ascending: false })
+    .order("id", { ascending: false });
 
   if (answerError) throw new Error(answerError.message);
-  if (!wrongAnswers || wrongAnswers.length === 0) return [];
+  if (!answers || answers.length === 0) return [];
 
-  const questionIds = wrongAnswers.map((a) => a.question_id);
+  const latestByQuestion = new Map<number, { is_correct: boolean }>();
+  for (const answer of answers) {
+    if (!latestByQuestion.has(answer.question_id)) {
+      latestByQuestion.set(answer.question_id, { is_correct: answer.is_correct });
+    }
+  }
 
-  // 3) 問題本体 + choices を取得
+  const questionIds = Array.from(latestByQuestion.entries())
+    .filter(([, v]) => v.is_correct === false)
+    .map(([id]) => id);
+
+  if (questionIds.length === 0) return [];
+
+  // 問題本体 + choices を取得
   const { data: questions, error: qError } = await supabase
     .from("questions")
     .select(`

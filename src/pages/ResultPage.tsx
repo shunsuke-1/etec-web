@@ -6,6 +6,7 @@ import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Progress } from "../components/ui/progress";
 import { Alert, AlertDescription } from "../components/ui/alert";
+import { fetchAttemptDetail } from "../features/history/api";
 import { 
   Trophy, 
   Target, 
@@ -63,16 +64,31 @@ export default function ResultPage({ userId }: Props) {
     const level = searchParams.get("level");
 
     if (attemptId && userId) {
-      // TODO: Fetch result from database using attemptId
-      // For now, show loading state
-      setLoading(false);
-      setResult({
-        score: 0,
-        total: 0,
-        percentage: 0,
-        level: level || "beginner",
-        attemptId: parseInt(attemptId),
-      });
+      (async () => {
+        try {
+          setLoading(true);
+          const detail = await fetchAttemptDetail({
+            userId,
+            attemptId: parseInt(attemptId),
+          });
+          const scoreNum = detail.attempt.correct_count ?? 0;
+          const totalNum = detail.attempt.total_questions ?? 0;
+          const percentage =
+            totalNum > 0 ? Math.round((scoreNum / totalNum) * 100) : 0;
+
+          setResult({
+            score: scoreNum,
+            total: totalNum,
+            percentage,
+            level: detail.attempt.level,
+            attemptId: parseInt(attemptId),
+          });
+        } catch (e) {
+          setResult(null);
+        } finally {
+          setLoading(false);
+        }
+      })();
     } else if (score && total && level) {
       // Use URL params for non-logged in users
       const scoreNum = parseInt(score);
@@ -260,11 +276,11 @@ export default function ResultPage({ userId }: Props) {
         {userId && result.attemptId && (
           <Button
             variant="outline"
-            onClick={() => navigate(`/explanation?attemptId=${result.attemptId}`)}
+            onClick={() => navigate("/review")}
             className="gap-2"
           >
             <BookOpen className="h-4 w-4" />
-            詳細解説を見る
+            間違いを復習
           </Button>
         )}
       </div>

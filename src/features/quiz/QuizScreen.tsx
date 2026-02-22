@@ -9,6 +9,7 @@ import { Progress } from "../../components/ui/progress";
 import { Badge } from "../../components/ui/badge";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { CheckCircle, XCircle, ArrowRight, Trophy, AlertCircle, User } from "lucide-react";
+import Markdown from "../../components/ui/markdown";
 // import { useToast } from "../../hooks/use-toast";
 
 type Props = {
@@ -313,9 +314,7 @@ export default function QuizScreen({ level, userId }: Props) {
               <div className="space-y-2">
                 <h4 className="font-medium text-sm text-muted-foreground">解説</h4>
                 <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-sm leading-relaxed">
-                    {current.explanation}
-                  </p>
+                  <Markdown content={current.explanation} />
                 </div>
               </div>
             )}

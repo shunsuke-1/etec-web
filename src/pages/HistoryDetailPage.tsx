@@ -6,6 +6,7 @@ import { Badge } from "../components/ui/badge";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { fetchAttemptDetail } from "../features/history/api";
 import { Calendar, CheckCircle, XCircle, AlertCircle, User } from "lucide-react";
+import Markdown from "../components/ui/markdown";
 
 type Props = {
   userId: string | null;
@@ -231,7 +232,7 @@ export default function HistoryDetailPage({ userId }: Props) {
                   <span>{item.correctChoiceLabel}</span>
                 </div>
                 {item.explanation && (
-                  <div className="text-sm text-muted-foreground">{item.explanation}</div>
+                  <Markdown content={item.explanation} className="text-muted-foreground" />
                 )}
               </CardContent>
             </Card>

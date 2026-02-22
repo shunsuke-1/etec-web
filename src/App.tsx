@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { supabase } from "./lib/supabaseClient";
 import AuthPanel from "./features/auth/AuthPanel";
 
@@ -10,6 +10,9 @@ import ExplanationPage from "./pages/ExplanationPage";
 import HistoryPage from "./pages/HistoryPage";
 import HistoryDetailPage from "./pages/HistoryDetailPage";
 import ReviewPage from "./pages/ReviewPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import ContactPage from "./pages/ContactPage";
+import AboutPage from "./pages/AboutPage";
 
 export default function App() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -45,35 +48,70 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <header className="border-b border-gray-200 pb-6 mb-8 bg-white rounded-lg shadow-sm p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">ETEC Quiz</h1>
-              <p className="text-gray-600 mt-1">
-                エンベデッドシステムスペシャリスト試験対策
-              </p>
-            </div>
+    <div className="min-h-screen bg-[#edf0f2] flex flex-col">
+      <header className="border-b border-gray-200 bg-white">
+        <div className="mx-auto flex w-full max-w-[1240px] items-start justify-between gap-4 px-6 py-5">
+          <div>
+            <h1 className="text-4xl font-extrabold tracking-tight text-black sm:text-[2.8rem]">
+              ETEC EXAM
+            </h1>
+            <p className="mt-2 text-lg text-gray-500">ETEC試験対策</p>
           </div>
-          <div className="mt-6">
-            <AuthPanel isLoggedIn={!!userId} email={email} />
-          </div>
-        </header>
+          <AuthPanel isLoggedIn={!!userId} email={email} />
+        </div>
+      </header>
 
+      <div className="mx-auto w-full max-w-[1240px] flex-1 px-6 py-10">
         <main>
           <Routes>
             <Route path="/" element={<HomePage userId={userId} />} />
             <Route path="/quiz" element={<QuizPage userId={userId} />} />
             <Route path="/result" element={<ResultPage userId={userId} />} />
-            <Route path="/explanation" element={<ExplanationPage userId={userId} />} />
+            <Route
+              path="/explanation"
+              element={<ExplanationPage userId={userId} />}
+            />
             <Route path="/review" element={<ReviewPage userId={userId} />} />
             <Route path="/history" element={<HistoryPage userId={userId} />} />
-            <Route path="/history/:attemptId" element={<HistoryDetailPage userId={userId} />} />
+            <Route
+              path="/history/:attemptId"
+              element={<HistoryDetailPage userId={userId} />}
+            />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
       </div>
+
+      <footer className="border-t border-gray-200 bg-white/80">
+        <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-3 px-6 py-6 text-sm text-gray-600 sm:flex-row sm:items-center sm:justify-between">
+          <nav className="flex flex-wrap items-center gap-4">
+            <Link
+              to="/privacy"
+              className="transition-colors hover:text-[#2f74c0]"
+            >
+              プライバシーポリシー
+            </Link>
+            <Link
+              to="/contact"
+              className="transition-colors hover:text-[#2f74c0]"
+            >
+              お問い合わせ
+            </Link>
+            <Link
+              to="/about"
+              className="transition-colors hover:text-[#2f74c0]"
+            >
+              運営者情報
+            </Link>
+          </nav>
+          <p className="text-xs text-gray-500">
+            © {new Date().getFullYear()} ETEC Quiz
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
